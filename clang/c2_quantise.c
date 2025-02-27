@@ -39,6 +39,7 @@
 #include "c2_lsp.h"
 #include "c2_mbest.h"
 #include "c2_phase.h"
+#include "c2_alloc.h"
 
 #undef PROFILE
 #include "c2_machdep.h"
@@ -130,13 +131,23 @@ long quantise(const float *cb, float vec[], float w[], int k, int m, float *se)
 void encode_lspds_scalar(int indexes[], float lsp[], int order)
 {
     int i, k, m;
+    const float *cb;
+    float se;
+
+#ifdef LPC_ORD
+    float lsp_hz[LPC_ORD];
+    float lsp__hz[LPC_ORD];
+    float dlsp[LPC_ORD];
+    float dlsp_[LPC_ORD];
+    float wt[LPC_ORD];
+    assert(order == LPC_ORD);
+#else
     float lsp_hz[order];
     float lsp__hz[order];
     float dlsp[order];
     float dlsp_[order];
     float wt[order];
-    const float *cb;
-    float se;
+#endif
 
     for (i = 0; i < order; i++) {
         wt[i] = 1.0;
@@ -176,9 +187,16 @@ void encode_lspds_scalar(int indexes[], float lsp[], int order)
 void decode_lspds_scalar(float lsp_[], int indexes[], int order)
 {
     int i, k;
+    const float *cb;
+
+#ifdef LPC_ORD
+    float lsp__hz[LPC_ORD];
+    float dlsp_[LPC_ORD];
+    assert(order == LPC_ORD);
+#else
     float lsp__hz[order];
     float dlsp_[order];
-    const float *cb;
+#endif
 
     for (i = 0; i < order; i++) {
         k = lsp_cbd[i].k;
@@ -254,8 +272,16 @@ int find_nearest_weighted(const float *codebook, int nb_entries, float *x,
 void lspjmv_quantise(float *x, float *xq, int order)
 {
     int i, n1, n2, n3;
+
+#ifdef LPC_ORD
+    float err[LPC_ORD], err2[LPC_ORD], err3[LPC_ORD];
+    float w[LPC_ORD], w2[LPC_ORD], w3[LPC_ORD];
+    assert(order == LPC_ORD);
+#else
     float err[order], err2[order], err3[order];
     float w[order], w2[order], w3[order];
+#endif
+
     const float *codebook1 = lsp_cbjmv[0].cb;
     const float *codebook2 = lsp_cbjmv[1].cb;
     const float *codebook3 = lsp_cbjmv[2].cb;
@@ -593,7 +619,7 @@ int encode_Wo(C2CONST *c2const, float Wo, int bits)
     float norm;
 
     norm = (Wo - Wo_min) / (Wo_max - Wo_min);
-    index = floorf(Wo_levels * norm + 0.5);
+    index = (int) floorf(Wo_levels * norm + 0.5);
     if (index < 0) {
         index = 0;
     }
@@ -646,7 +672,7 @@ int encode_log_Wo(C2CONST *c2const, float Wo, int bits)
     float norm;
 
     norm = (log10f(Wo) - log10f(Wo_min)) / (log10f(Wo_max) - log10f(Wo_min));
-    index = floorf(Wo_levels * norm + 0.5);
+    index = (int) floorf(Wo_levels * norm + 0.5);
     if (index < 0) {
         index = 0;
     }
@@ -697,9 +723,19 @@ float speech_to_uq_lsps(float lsp[], float ak[], float Sn[], float w[],
                         int m_pitch, int order)
 {
     int i, roots;
-    float Wn[m_pitch];
-    float R[order + 1];
     float e, E;
+
+    float *Wn = (float *)MALLOC(m_pitch * sizeof(float));
+    if (Wn == NULL) {
+        return 0.0;
+    }
+
+#ifdef LPC_ORD
+    float R[LPC_ORD + 1];
+    assert(order == LPC_ORD);
+#else
+    float R[order + 1];
+#endif
 
     e = 0.0;
     for (i = 0; i < m_pitch; i++) {
@@ -713,6 +749,7 @@ float speech_to_uq_lsps(float lsp[], float ak[], float Sn[], float w[],
         for (i = 0; i < order; i++) {
             lsp[i] = (PI / order) * (float)i;
         }
+        FREE(Wn);
         return 0.0;
     }
 
@@ -741,6 +778,7 @@ float speech_to_uq_lsps(float lsp[], float ak[], float Sn[], float w[],
         }
     }
 
+    FREE(Wn);
     return E;
 }
 
@@ -759,9 +797,15 @@ void encode_lsps_scalar(int indexes[], float lsp[], int order)
 {
     int i, k, m;
     float wt[1];
-    float lsp_hz[order];
     const float *cb;
     float se;
+
+#ifdef LPC_ORD
+    float lsp_hz[LPC_ORD];
+    assert(order == LPC_ORD);
+#else
+    float lsp_hz[order];
+#endif
 
     /* convert from radians to Hz so we can use human readable
        frequencies */
@@ -795,8 +839,14 @@ void encode_lsps_scalar(int indexes[], float lsp[], int order)
 void decode_lsps_scalar(float lsp[], int indexes[], int order)
 {
     int i, k;
-    float lsp_hz[order];
     const float *cb;
+
+#ifdef LPC_ORD
+    float lsp_hz[LPC_ORD];
+    assert(order == LPC_ORD);
+#else
+    float lsp_hz[order];
+#endif
 
     for (i = 0; i < order; i++) {
         k = lsp_cb[i].k;
@@ -824,8 +874,16 @@ void decode_lsps_scalar(float lsp[], int indexes[], int order)
 void encode_lsps_vq(int *indexes, float *x, float *xq, int order)
 {
     int i, n1, n2, n3;
+
+#ifdef LPC_ORD
+    float err[LPC_ORD], err2[LPC_ORD], err3[LPC_ORD];
+    float w[LPC_ORD], w2[LPC_ORD], w3[LPC_ORD];
+    assert(order == LPC_ORD);
+#else
     float err[order], err2[order], err3[order];
     float w[order], w2[order], w3[order];
+#endif
+
     const float *codebook1 = lsp_cbjmv[0].cb;
     const float *codebook2 = lsp_cbjmv[1].cb;
     const float *codebook3 = lsp_cbjmv[2].cb;
@@ -984,7 +1042,7 @@ int encode_energy(float e, int bits)
 
     e = 10.0 * log10f(e);
     norm = (e - e_min) / (e_max - e_min);
-    index = floorf(e_levels * norm + 0.5);
+    index = (int) floorf(e_levels * norm + 0.5);
     if (index < 0) {
         index = 0;
     }
@@ -1129,7 +1187,7 @@ void quantise_WoE(C2CONST *c2const, MODEL *model, float *e, float xq[])
         model->Wo = Wo_min;
     }
 
-    model->L = PI / model->Wo; /* if we quantise Wo re-compute L */
+    model->L = (int) (PI / model->Wo); /* if we quantise Wo re-compute L */
 
     *e = POW10F(xq[1] / 10.0);
 }
@@ -1214,7 +1272,7 @@ void decode_WoE(C2CONST *c2const, MODEL *model, float *e, float xq[], int n1)
         model->Wo = Wo_min;
     }
 
-    model->L = PI / model->Wo; /* if we quantise Wo re-compute L */
+    model->L = (int) (PI / model->Wo); /* if we quantise Wo re-compute L */
 
     *e = POW10F(xq[1] / 10.0);
 }

@@ -93,7 +93,13 @@ static float cheb_poly_eva(float *coef, float x, int order)
 {
     int i;
     float *t, *u, *v, sum;
+
+#ifdef LPC_ORD
+    float T[(LPC_ORD / 2) + 1];
+    assert(order == LPC_ORD);
+#else
     float T[(order / 2) + 1];
+#endif
 
     /* Initialise pointers */
 
@@ -148,8 +154,15 @@ int lpc_to_lsp(float *a, int order, float *freq, int nb, float delta)
     float *pt;     /* ptr used for cheb_poly_eval()
                     whether P' or Q' 			*/
     int roots = 0; /* number of roots found 	        */
+
+#ifdef LPC_ORD
+    float Q[LPC_ORD + 1];
+    float P[LPC_ORD + 1];
+    assert(order == LPC_ORD);
+#else
     float Q[order + 1];
     float P[order + 1];
+#endif
 
     flag = 1;
     m = order / 2; /* order of P'(z) & Q'(z) polynimials 	*/
@@ -266,8 +279,15 @@ void lsp_to_lpc(float *lsp, float *ak, int order)
     int i, j;
     float xout1, xout2, xin1, xin2;
     float *pw, *n1, *n2, *n3, *n4 = 0;
+
+#ifdef LPC_ORD
+    float freq[LPC_ORD];
+    float Wp[(LPC_ORD * 4) + 2];
+    assert(order == LPC_ORD);
+#else
     float freq[order];
     float Wp[(order * 4) + 2];
+#endif
 
     /* convert from radians to the x=cos(w) domain */
 

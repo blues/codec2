@@ -38,6 +38,7 @@
 #include "c2_defines.h"
 #include "c2_kiss_fft.h"
 #include "c2_sine.h"
+#include "c2_alloc.h"
 
 /*---------------------------------------------------------------------------*\
 
@@ -228,9 +229,32 @@ void mag_to_phase(
     float Gdbfk[], /* Nfft/2+1 positive freq amplitudes samples in dB */
     int Nfft, codec2_fft_cfg fft_fwd_cfg, codec2_fft_cfg fft_inv_cfg)
 {
-    COMP Sdb[Nfft], c[Nfft], cf[Nfft], Cf[Nfft];
     int Ns = Nfft / 2 + 1;
     int i;
+
+    /* Alloc */
+    COMP *Sdb = (COMP *)MALLOC(Nfft * sizeof(COMP));
+    if (Sdb == NULL) {
+        return;
+    }
+    COMP *c = (COMP *)MALLOC(Nfft * sizeof(COMP));
+    if (c == NULL) {
+        FREE(Sdb);
+        return;
+    }
+    COMP *cf = (COMP *)MALLOC(Nfft * sizeof(COMP));
+    if (cf == NULL) {
+        FREE(c);
+        FREE(Sdb);
+        return;
+    }
+    COMP *Cf = (COMP *)MALLOC(Nfft * sizeof(COMP));
+    if (Cf == NULL) {
+        FREE(cf);
+        FREE(c);
+        FREE(Sdb);
+        return;
+    }
 
     /* install negative frequency components, 1/Nfft takes into
        account kiss fft lack of scaling on ifft */
@@ -275,4 +299,11 @@ void mag_to_phase(
     for (i = 0; i < Ns; i++) {
         phase[i] = Cf[i].imag / scale;
     }
+
+    /* Free */
+    FREE(Cf);
+    FREE(cf);
+    FREE(c);
+    FREE(Sdb);
+
 }

@@ -151,9 +151,15 @@ void levinson_durbin(float R[],    /* order+1 autocorrelation coeff */
                      int order     /* order of the LPC analysis */
                     )
 {
-    float a[order + 1][order + 1];
     float sum, e, k;
     int i, j; /* loop variables */
+
+#ifdef LPC_ORD
+    float a[LPC_ORD + 1][LPC_ORD + 1];
+    assert(order == LPC_ORD);
+#else
+    float a[order + 1][order + 1];
+#endif
 
     e = R[0]; /* Equation 38a, Makhoul */
 
@@ -266,8 +272,14 @@ void find_aks(float Sn[], /* Nsam samples with order sample memory */
              )
 {
     float Wn[LPC_MAX_N]; /* windowed frame of Nsam speech samples */
-    float R[order + 1];  /* order+1 autocorrelation values of Sn[] */
     int i;
+
+#ifdef LPC_ORD
+    float R[LPC_ORD + 1];/* order+1 autocorrelation values of Sn[] */
+    assert(order == LPC_ORD);
+#else
+    float R[order + 1];  /* order+1 autocorrelation values of Sn[] */
+#endif
 
     assert(Nsam < LPC_MAX_N);
 

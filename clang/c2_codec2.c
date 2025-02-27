@@ -155,7 +155,7 @@ struct CODEC2 *codec2_create(int mode)
         c2->prev_model_dec.A[l] = 0.0;
     }
     c2->prev_model_dec.Wo = TWO_PI / c2->c2const.p_max;
-    c2->prev_model_dec.L = PI / c2->prev_model_dec.Wo;
+    c2->prev_model_dec.L = (int) (PI / c2->prev_model_dec.Wo);
     c2->prev_model_dec.voiced = 0;
 
     for (i = 0; i < LPC_ORD; i++) {
@@ -499,8 +499,8 @@ float codec2_get_energy(struct CODEC2 *c2, const unsigned char *bits)
     assert(c2 != NULL);
     assert((CODEC2_MODE_ACTIVE(CODEC2_MODE_2400, c2->mode)));
     MODEL model;
-    float xq_dec[2] = {};
-    int e_index, WoE_index;
+    float xq_dec[2] = {0};
+    int WoE_index;
     float e = 0.0f;
     unsigned int nbit;
 
@@ -548,7 +548,7 @@ void synthesise_one_frame(struct CODEC2 *c2, short speech[], MODEL *model,
         } else if (c2->Sn_[i] < -32767.0) {
             speech[i] = -32767;
         } else {
-            speech[i] = c2->Sn_[i];
+            speech[i] = (int) c2->Sn_[i];
         }
     }
 }
@@ -586,7 +586,7 @@ void analyse_one_frame(struct CODEC2 *c2, MODEL *model, short speech[])
     /* Estimate pitch */
     nlp(c2->nlp, c2->Sn, n_samp, &pitch, Sw, c2->W, &c2->prev_f0_enc);
     model->Wo = TWO_PI / pitch;
-    model->L = PI / model->Wo;
+    model->L = (int) (PI / model->Wo);
 
     /* estimate model parameters */
     two_stage_pitch_refinement(&c2->c2const, model, Sw);
@@ -661,19 +661,6 @@ void codec2_set_lpc_post_filter(struct CODEC2 *c2, int enable, int bass_boost,
 int codec2_get_spare_bit_index(struct CODEC2 *c2)
 {
     assert(c2 != NULL);
-    return -1;
-}
-
-/*
-   Reconstructs the spare voicing bit.  Note works on unpacked bits
-   for convenience.
-*/
-
-int codec2_rebuild_spare_bit(struct CODEC2 *c2, char unpacked_bits[])
-{
-    int v1, v3;
-    assert(c2 != NULL);
-    v1 = unpacked_bits[1];
     return -1;
 }
 

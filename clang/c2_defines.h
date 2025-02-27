@@ -28,6 +28,8 @@
 #ifndef __DEFINES__
 #define __DEFINES__
 
+#include <assert.h>
+
 /*---------------------------------------------------------------------------*\
 
                                 DEFINES
@@ -52,7 +54,6 @@
 #define FFT_DEC 512   /* size of FFT used in decoder          */
 #define V_THRESH 6.0  /* voicing threshold in dB              */
 #define LPC_ORD 10    /* LPC order                            */
-#define LPC_ORD_LOW 6 /* LPC order for lower rates            */
 
 /* Pitch estimation defines */
 

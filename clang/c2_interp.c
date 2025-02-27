@@ -90,7 +90,7 @@ void interpolate(
 
     /* Interpolate amplitudes using linear interpolation in log domain */
 
-    for(l=1; l<=interp->L; l++) {
+    for (l=1; l<=interp->L; l++) {
         w = l*interp->Wo;
         log_amp = (sample_log_amp(prev, w) + sample_log_amp(next, w))/2.0;
         interp->A[l] = powf(10.0, log_amp);
@@ -112,13 +112,12 @@ void interpolate(
 
 float sample_log_amp(MODEL *model, float w)
 {
-    int m;
     float f, log_amp;
 
     assert(w > 0.0);
     assert(w <= PI);
 
-    m = floorf(w / model->Wo + 0.5);
+    int m = (int) floorf(w / model->Wo + 0.5);
     f = (w - m * model->Wo) / w;
     assert(f <= 1.0);
 
@@ -265,7 +264,7 @@ void interp_Wo2(MODEL *interp, /* interpolated model params */
     } else {
         interp->Wo = Wo_min;
     }
-    interp->L = PI / interp->Wo;
+    interp->L = (int) (PI / interp->Wo);
 }
 
 /*---------------------------------------------------------------------------*\

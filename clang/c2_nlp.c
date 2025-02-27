@@ -36,6 +36,7 @@
 
 #include "c2_machdep.h"
 #include "c2_os.h"
+#include "c2_alloc.h"
 
 /*---------------------------------------------------------------------------*\
 
@@ -71,18 +72,18 @@
 
 const float nlp_fir[] = {
     -1.0818124e-03, -1.1008344e-03, -9.2768838e-04, -4.2289438e-04,
-    5.5034190e-04,  2.0029849e-03,  3.7058509e-03,  5.1449415e-03,
-    5.5924666e-03,  4.3036754e-03,  8.0284511e-04,  -4.8204610e-03,
-    -1.1705810e-02, -1.8199275e-02, -2.2065282e-02, -2.0920610e-02,
-    -1.2808831e-02, 3.2204775e-03,  2.6683811e-02,  5.5520624e-02,
-    8.6305944e-02,  1.1480192e-01,  1.3674206e-01,  1.4867556e-01,
-    1.4867556e-01,  1.3674206e-01,  1.1480192e-01,  8.6305944e-02,
-    5.5520624e-02,  2.6683811e-02,  3.2204775e-03,  -1.2808831e-02,
-    -2.0920610e-02, -2.2065282e-02, -1.8199275e-02, -1.1705810e-02,
-    -4.8204610e-03, 8.0284511e-04,  4.3036754e-03,  5.5924666e-03,
-    5.1449415e-03,  3.7058509e-03,  2.0029849e-03,  5.5034190e-04,
-    -4.2289438e-04, -9.2768838e-04, -1.1008344e-03, -1.0818124e-03
-};
+        5.5034190e-04,  2.0029849e-03,  3.7058509e-03,  5.1449415e-03,
+        5.5924666e-03,  4.3036754e-03,  8.0284511e-04,  -4.8204610e-03,
+        -1.1705810e-02, -1.8199275e-02, -2.2065282e-02, -2.0920610e-02,
+        -1.2808831e-02, 3.2204775e-03,  2.6683811e-02,  5.5520624e-02,
+        8.6305944e-02,  1.1480192e-01,  1.3674206e-01,  1.4867556e-01,
+        1.4867556e-01,  1.3674206e-01,  1.1480192e-01,  8.6305944e-02,
+        5.5520624e-02,  2.6683811e-02,  3.2204775e-03,  -1.2808831e-02,
+        -2.0920610e-02, -2.2065282e-02, -1.8199275e-02, -1.1705810e-02,
+        -4.8204610e-03, 8.0284511e-04,  4.3036754e-03,  5.5924666e-03,
+        5.1449415e-03,  3.7058509e-03,  2.0029849e-03,  5.5034190e-04,
+        -4.2289438e-04, -9.2768838e-04, -1.1008344e-03, -1.0818124e-03
+    };
 
 typedef struct {
     int Fs; /* sample rate in Hz            */
@@ -261,15 +262,22 @@ float nlp(
         m /= 2;
         n /= 2;
 
-        float Sn8k[n];
-        fdmdv_16_to_8(Sn8k, &nlp->Sn16k[FDMDV_OS_TAPS_16K], n);
+        float *Sn8k = (float *)MALLOC(n * sizeof(float));
+        if (Sn8k != NULL) {
 
-        /* Square latest input samples */
+            fdmdv_16_to_8(Sn8k, &nlp->Sn16k[FDMDV_OS_TAPS_16K], n);
 
-        for (i = m - n, j = 0; i < m; i++, j++) {
-            nlp->sq[i] = Sn8k[j] * Sn8k[j];
+            /* Square latest input samples */
+
+            for (i = m - n, j = 0; i < m; i++, j++) {
+                nlp->sq[i] = Sn8k[j] * Sn8k[j];
+            }
+            assert(j <= n);
+
+            FREE(Sn8k);
+
         }
-        assert(j <= n);
+
     }
     // fprintf(stderr, "n: %d m: %d\n", n, m);
 
@@ -331,8 +339,8 @@ float nlp(
 
     /* todo: express everything in f0, as pitch in samples is dep on Fs */
 
-    int pmin = floor(SAMPLE_RATE * P_MIN_S);
-    int pmax = floor(SAMPLE_RATE * P_MAX_S);
+    int pmin = (int) floor(SAMPLE_RATE * P_MIN_S);
+    int pmax = (int) floor(SAMPLE_RATE * P_MAX_S);
 
     /* find global peak */
 
@@ -406,12 +414,12 @@ float post_process_sub_multiples(COMP Fw[], int pmin, int pmax, float gmax,
     mult = 2;
     min_bin = PE_FFT_SIZE * DEC / pmax;
     cmax_bin = gmax_bin;
-    prev_f0_bin = *prev_f0 * (PE_FFT_SIZE * DEC) / SAMPLE_RATE;
+    prev_f0_bin = (int) (*prev_f0 * (PE_FFT_SIZE * DEC) / SAMPLE_RATE);
 
     while (gmax_bin / mult >= min_bin) {
         b = gmax_bin / mult; /* determine search interval */
-        bmin = 0.8 * b;
-        bmax = 1.2 * b;
+        bmin = (int) (0.8 * b);
+        bmax = (int) (1.2 * b);
         if (bmin < min_bin) {
             bmin = min_bin;
         }

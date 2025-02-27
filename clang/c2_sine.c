@@ -63,11 +63,11 @@ C2CONST c2const_create(int Fs, float framelength_s)
 
     assert((Fs == 8000) || (Fs == 16000));
     c2const.Fs = Fs;
-    c2const.n_samp = round(Fs * framelength_s);
-    c2const.max_amp = floor(Fs * P_MAX_S / 2);
-    c2const.p_min = floor(Fs * P_MIN_S);
-    c2const.p_max = floor(Fs * P_MAX_S);
-    c2const.m_pitch = floor(Fs * M_PITCH_S);
+    c2const.n_samp = (int) round(Fs * framelength_s);
+    c2const.max_amp = (int) floor(Fs * P_MAX_S / 2);
+    c2const.p_min = (int) floor(Fs * P_MIN_S);
+    c2const.p_max = (int) floor(Fs * P_MAX_S);
+    c2const.m_pitch = (int) floor(Fs * M_PITCH_S);
     c2const.Wo_min = TWO_PI / c2const.p_max;
     c2const.Wo_max = TWO_PI / c2const.p_min;
 
@@ -78,7 +78,7 @@ C2CONST c2const_create(int Fs, float framelength_s)
                      constant FFT size */
     }
 
-    c2const.tw = Fs * TW_S;
+    c2const.tw = (int) (Fs * TW_S);
 
     /*
     fprintf(stderr, "max_amp: %d m_pitch: %d\n", c2const.n_samp, c2const.m_pitch);
@@ -335,7 +335,7 @@ void two_stage_pitch_refinement(C2CONST *c2const, MODEL *model, COMP Sw[])
         model->Wo = TWO_PI / c2const->p_min;
     }
 
-    model->L = floorf(PI / model->Wo);
+    model->L = (int) floorf(PI / model->Wo);
 
     /* trap occasional round off issues with floorf() */
     if (model->Wo * model->L >= 0.95 * PI) {
@@ -375,7 +375,7 @@ void hs_pitch_refinement(MODEL *model, COMP Sw[], float pmin, float pmax,
 
     /* Initialisation */
 
-    model->L = PI / model->Wo; /* use initial pitch est. for L */
+    model->L = (int) (PI / model->Wo); /* use initial pitch est. for L */
     Wom = model->Wo;
     Em = 0.0;
     r = TWO_PI / FFT_ENC;
@@ -477,7 +477,7 @@ float est_voicing_mbe(C2CONST *c2const, MODEL *model, COMP Sw[], float W[])
     Ew.real = 0;
     Ew.imag = 0;
 
-    int l_1000hz = model->L * 1000.0 / (c2const->Fs / 2);
+    int l_1000hz = (int) (model->L * 1000.0 / (c2const->Fs / 2));
     sig = 1E-4;
     for (l = 1; l <= l_1000hz; l++) {
         sig += model->A[l] * model->A[l];
@@ -492,12 +492,12 @@ float est_voicing_mbe(C2CONST *c2const, MODEL *model, COMP Sw[], float W[])
         Am.real = 0.0;
         Am.imag = 0.0;
         den = 0.0;
-        al = ceilf((l - 0.5) * Wo * FFT_ENC / TWO_PI);
-        bl = ceilf((l + 0.5) * Wo * FFT_ENC / TWO_PI);
+        al = (int) ceilf((l - 0.5) * Wo * FFT_ENC / TWO_PI);
+        bl = (int) ceilf((l + 0.5) * Wo * FFT_ENC / TWO_PI);
 
         /* Estimate amplitude of harmonic assuming harmonic is totally voiced */
 
-        offset = FFT_ENC / 2 - l * Wo * FFT_ENC / TWO_PI + 0.5;
+        offset = (int) (FFT_ENC / 2 - l * Wo * FFT_ENC / TWO_PI + 0.5);
         for (m = al; m < bl; m++) {
             Am.real += Sw[m].real * W[offset + m];
             Am.imag += Sw[m].imag * W[offset + m];
@@ -533,8 +533,8 @@ float est_voicing_mbe(C2CONST *c2const, MODEL *model, COMP Sw[], float W[])
        determine if we have made any gross errors.
     */
 
-    int l_2000hz = model->L * 2000.0 / (c2const->Fs / 2);
-    int l_4000hz = model->L * 4000.0 / (c2const->Fs / 2);
+    int l_2000hz = (int) (model->L * 2000.0 / (c2const->Fs / 2));
+    int l_4000hz = (int) (model->L * 4000.0 / (c2const->Fs / 2));
     elow = ehigh = 1E-4;
     for (l = 1; l <= l_2000hz; l++) {
         elow += model->A[l] * model->A[l];

@@ -1,4 +1,4 @@
-module github.com/blues/codec2-2400/golang
+module github.com/blues/codec2/golang
 
 go 1.21
 

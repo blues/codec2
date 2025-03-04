@@ -21,12 +21,12 @@ const arm_cfft_instance_f32* fft_init_cache[FFT_INIT_CACHE_SIZE];
 static const arm_cfft_instance_f32* arm_fft_instance2ram(const arm_cfft_instance_f32* in)
 {
 
-    arm_cfft_instance_f32* out = malloc(sizeof(arm_cfft_instance_f32));
+    arm_cfft_instance_f32* out = MALLOC(sizeof(arm_cfft_instance_f32));
 
     if (out) {
         memcpy(out,in,sizeof(arm_cfft_instance_f32));
-        out->pBitRevTable = malloc(out->bitRevLength * sizeof(uint16_t));
-        out->pTwiddle = malloc(out->fftLen * sizeof(float32_t));
+        out->pBitRevTable = MALLOC(out->bitRevLength * sizeof(uint16_t));
+        out->pTwiddle = MALLOC(out->fftLen * sizeof(float32_t));
         memcpy((void*)out->pBitRevTable,in->pBitRevTable,out->bitRevLength * sizeof(uint16_t));
         memcpy((void*)out->pTwiddle,in->pTwiddle,out->fftLen * sizeof(float32_t));
     }

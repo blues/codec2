@@ -29,8 +29,9 @@ extern "C" {
 #define KISS_FFT_MALLOC(nbytes) _mm_malloc(nbytes, 16)
 #define KISS_FFT_FREE _mm_free
 #else
-#define KISS_FFT_MALLOC malloc
-#define KISS_FFT_FREE free
+#include "c2_alloc.h"
+#define KISS_FFT_MALLOC MALLOC
+#define KISS_FFT_FREE FREE
 #endif
 
 #ifdef FIXED_POINT

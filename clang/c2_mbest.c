@@ -28,6 +28,7 @@
 */
 
 #include "c2_mbest.h"
+#include "c2_alloc.h"
 
 #include <assert.h>
 #include <math.h>
@@ -41,12 +42,12 @@ struct MBEST *mbest_create(int entries)
     struct MBEST *mbest;
 
     assert(entries > 0);
-    mbest = (struct MBEST *)malloc(sizeof(struct MBEST));
+    mbest = (struct MBEST *)MALLOC(sizeof(struct MBEST));
     assert(mbest != NULL);
 
     mbest->entries = entries;
     mbest->list =
-        (struct MBEST_LIST *)malloc(entries * sizeof(struct MBEST_LIST));
+        (struct MBEST_LIST *)MALLOC(entries * sizeof(struct MBEST_LIST));
     assert(mbest->list != NULL);
 
     for (i = 0; i < mbest->entries; i++) {
@@ -62,8 +63,8 @@ struct MBEST *mbest_create(int entries)
 void mbest_destroy(struct MBEST *mbest)
 {
     assert(mbest != NULL);
-    free(mbest->list);
-    free(mbest);
+    FREE(mbest->list);
+    FREE(mbest);
 }
 
 /* apply weighting to VQ for efficient VQ search */

@@ -705,7 +705,7 @@ float codec2_get_var(struct CODEC2 *codec2_state)
 float *codec2_enable_user_ratek(struct CODEC2 *codec2_state, int *K)
 {
     codec2_state->user_rate_K_vec_no_mean_ =
-        (float *)malloc(sizeof(float) * NEWAMP1_K);
+        (float *)MALLOC(sizeof(float) * NEWAMP1_K);
     *K = NEWAMP1_K;
     return codec2_state->user_rate_K_vec_no_mean_;
 }

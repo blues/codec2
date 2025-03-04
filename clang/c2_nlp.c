@@ -116,7 +116,7 @@ void *nlp_create(C2CONST *c2const)
     int m = c2const->m_pitch;
     int Fs = c2const->Fs;
 
-    nlp = (NLP *)malloc(sizeof(NLP));
+    nlp = (NLP *)MALLOC(sizeof(NLP));
     if (nlp == NULL) {
         return NULL;
     }
@@ -130,12 +130,12 @@ void *nlp_create(C2CONST *c2const)
 
     if (Fs == 16000) {
         nlp->Sn16k =
-            (float *)malloc(sizeof(float) * (FDMDV_OS_TAPS_16K + c2const->n_samp));
+            (float *)MALLOC(sizeof(float) * (FDMDV_OS_TAPS_16K + c2const->n_samp));
         for (i = 0; i < FDMDV_OS_TAPS_16K; i++) {
             nlp->Sn16k[i] = 0.0;
         }
         if (nlp->Sn16k == NULL) {
-            free(nlp);
+            FREE(nlp);
             return NULL;
         }
 
@@ -181,9 +181,9 @@ void nlp_destroy(void *nlp_state)
 
     codec2_fft_free(nlp->fft_cfg);
     if (nlp->Fs == 16000) {
-        free(nlp->Sn16k);
+        FREE(nlp->Sn16k);
     }
-    free(nlp_state);
+    FREE(nlp_state);
 }
 
 /*---------------------------------------------------------------------------*\

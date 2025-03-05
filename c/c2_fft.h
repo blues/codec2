@@ -17,8 +17,8 @@
 #ifndef FDV_ARM_MATH
 #define USE_KISS_FFT
 #else
-#include "c2_arm_const_structs.h"
-#include "c2_arm_math.h"
+#include "arm_const_structs.h"
+#include "arm_math.h"
 #endif
 
 #include "c2_comp.h"

@@ -1,5 +1,5 @@
-clang/c2enc/c2enc
-clang/c2dec/c2dec
-golang/c2enc/c2enc
-golang/c2dec/c2dec
+c/c2enc/c2enc
+c/c2dec/c2dec
+go/c2enc/c2enc
+go/c2dec/c2dec
 

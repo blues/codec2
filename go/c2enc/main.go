@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/blues/codec2/golang"
+	"github.com/blues/codec2/go"
 )
 
 func usage() {

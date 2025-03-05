@@ -7,7 +7,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/blues/codec2/golang"
+	"github.com/blues/codec2/go"
 )
 
 func usage() {

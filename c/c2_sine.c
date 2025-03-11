@@ -426,6 +426,8 @@ void estimate_amplitudes(MODEL *model, COMP Sw[], float W[], int est_phase)
     float r = TWO_PI / FFT_ENC;
     float one_on_r = 1.0 / r;
 
+	(void) W;
+
     for (m = 1; m <= model->L; m++) {
         /* Estimate ampltude of harmonic */
 

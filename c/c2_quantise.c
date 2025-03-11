@@ -388,6 +388,8 @@ void lpc_post_filter(codec2_fftr_cfg fftr_fwd_cfg, float Pw[], float ak[],
 
     PROFILE_SAMPLE(tstart);
 
+	(void) dump;
+
     /* Determine weighting filter spectrum W(exp(jw)) ---------------*/
 
     for (i = 0; i < FFT_ENC; i++) {
@@ -1150,6 +1152,8 @@ void quantise_WoE(C2CONST *c2const, MODEL *model, float *e, float xq[])
     float Wo_min = c2const->Wo_min;
     float Wo_max = c2const->Wo_max;
     float Fs = c2const->Fs;
+
+	(void) Fs;
 
     /* VQ is only trained for Fs = 8000 Hz */
 

@@ -661,6 +661,7 @@ void codec2_set_lpc_post_filter(struct CODEC2 *c2, int enable, int bass_boost,
 int codec2_get_spare_bit_index(struct CODEC2 *c2)
 {
     assert(c2 != NULL);
+	(void) c2;
     return -1;
 }
 

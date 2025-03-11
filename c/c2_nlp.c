@@ -234,6 +234,9 @@ float nlp(
     float best_f0;
     PROFILE_VAR(start, tnotch, filter, peakpick, window, fft, magsq, shiftmem);
 
+	(void) Sw;
+	(void) W;
+
     assert(nlp_state != NULL);
     nlp = (NLP *)nlp_state;
     m = nlp->m;
@@ -408,6 +411,8 @@ float post_process_sub_multiples(COMP Fw[], int pmin, int pmax, float gmax,
     int b, bmin, bmax, lmax_bin;
     float lmax;
     int prev_f0_bin;
+
+	(void) pmin;
 
     /* post process estimate by searching submultiples */
 

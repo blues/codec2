@@ -17,5 +17,5 @@ gcc -o c2dec -I. -I.. \
 	../c2_mbest.c \
 	../c2_lsp_cb.c \
 	../c2_ge_cb.c \
-	main.c
+	-x c main.c.skip
 
